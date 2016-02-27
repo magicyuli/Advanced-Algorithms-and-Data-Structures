@@ -51,7 +51,6 @@ public class HuffmanEncode
         if (fileBytes == 0) return;
 
         freqMap = countFrequencies(reader);
-        encoding = new HashMap<Byte, int[]>();
 
         HuffmanTree(freqMap);
         
@@ -75,6 +74,13 @@ public class HuffmanEncode
     */
     public void encode(Byte item, BitWriter writer)
     {
+        if (encoding == null) {
+            encoding = new HashMap<Byte, int[]>();
+
+            int[] code = new int[1000];
+            fillEncoding(root, code, 0);
+        }
+
         int[] code = encoding.get(item);
 
         for (int i : code) {
@@ -110,7 +116,7 @@ public class HuffmanEncode
     * and builds a tree for encoding the data items using the Huffman
     * algorithm.
     */
-    public void HuffmanTree (Map<Byte, Integer> map)
+    public void HuffmanTree(Map<Byte, Integer> map)
     {
         PriorityQueue<HuffmanNode> pq = new PriorityQueue<HuffmanNode>(26,
             new Comparator<HuffmanNode>() {
@@ -142,33 +148,44 @@ public class HuffmanEncode
     */
     public void writeHeader(BitWriter writer) throws IOException
     {
-        int[] code = new int[freqMap.size()];
-        inOrdTrav(root, code, 0, writer);
+        inOrdTrav(root, writer);
     }
 
-    private void inOrdTrav(HuffmanNode cur, int[] code, int codeLen, BitWriter writer) {
+    private void inOrdTrav(HuffmanNode cur, BitWriter writer) {
         if (cur.isLeaf()) {
             writer.writeBit(LEAF);
             writer.writeByte(cur.getValue());
-
-            encoding.put(cur.getValue(), Arrays.copyOf(code, codeLen));
         }
         else {
             writer.writeBit(PARENT);
             
             if (cur.getLeft() != null) {
+                inOrdTrav(cur.getLeft(), writer);
+            }
+
+            if (cur.getRight() != null) {
+                inOrdTrav(cur.getRight(), writer);
+            }
+        }
+    }
+
+    private void fillEncoding(HuffmanNode cur, int[] code, int codeLen) {
+        if (cur.isLeaf()) {
+            encoding.put(cur.getValue(), Arrays.copyOf(code, codeLen));
+        }
+        else {
+            if (cur.getLeft() != null) {
                 code[codeLen] = LEFT;
 
-                inOrdTrav(cur.getLeft(), code, codeLen + 1, writer);
+                fillEncoding(cur.getLeft(), code, codeLen + 1);
             }
 
             if (cur.getRight() != null) {
                 code[codeLen] = RIGHT;
 
-                inOrdTrav(cur.getRight(), code, codeLen + 1, writer);
+                fillEncoding(cur.getRight(), code, codeLen + 1);
             }
         }
-
     }
 
     /**

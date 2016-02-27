@@ -15,15 +15,19 @@ public class HuffmanMainDriver
 {
 	public static void main(String[] args) throws FileNotFoundException
 	{
+		String inFile = args[0];
+		String outFile = inFile + ".txt";
+		String interFile = inFile + ".dat";
+
 		HuffmanEncode hc = new HuffmanEncode();
-		BitReader reader = new BitReader("HuffmanMainDriver.java");
-		BitWriter writer = new BitWriter("HuffmanMainDriver.dat");
+		BitReader reader = new BitReader(inFile);
+		BitWriter writer = new BitWriter(interFile);
 
 		hc.encode(reader, writer);
 
 		HuffmanDecode hd = new HuffmanDecode();
-		reader = new BitReader("HuffmanMainDriver.dat");
-		writer = new BitWriter("HuffmanMainDriver.txt");
+		reader = new BitReader(interFile);
+		writer = new BitWriter(outFile);
 
 		hd.decode(reader, writer);
 	}

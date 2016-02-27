@@ -94,22 +94,16 @@ public class LZW
             key <<= 8;
             key |= in.readByte() & HALF_WIDTH_MASK;
 
-            // System.out.printf("%x %s\n", key, dict.containsKey(key));
-
             if (!dict.containsKey(key)) {
                 l = new ArrayList<Byte>(l);
                 l.add(l.get(0));
+                
                 dict.put(dictSize++, l);
-                // System.out.printf("%x %d\n", key, i);
             }
             else if (l != null) {
                 l = new ArrayList<Byte>(l);
                 l.add(dict.get(key).get(0));
-                System.out.printf("%x %d ", dictSize, i);
-                for (byte b : l) {
-                    System.out.printf("%s", (char)b);
-                }
-                System.out.printf("\n");
+
                 dict.put(dictSize++, l);
             }
 
